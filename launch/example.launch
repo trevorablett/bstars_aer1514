@@ -6,7 +6,7 @@
 
     <!-- QR CODE LISTENER -->
     <node name="qrdecoder" pkg="qr_listener" type="qrdecoder.py">
-          <param name="img_topic" value="/mbot05/asus_camera" type="string"/>
+        <param name="img_topic" value="image_raw" type="string"/>
     </node>
     <!-- END QR CODE LISTENER -->
 
