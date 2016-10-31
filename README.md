@@ -24,9 +24,9 @@
 4. Install [cv_bridge](http://wiki.ros.org/cv_bridge):
 
     ```sh
-    $ apt-get install ros-<rosdistro>-cv-bridge
+    $ apt-get install ros-``<rosdistro``>-cv-bridge
     ```
-    Replace *<rosdistro>* with your ROS distribution (e.g., indigo).
+    Replace *``<rosdistro``>* with your ROS distribution (e.g., indigo).
 
 # Example
 
