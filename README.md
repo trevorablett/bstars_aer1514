@@ -5,7 +5,9 @@
 
 1. Instal Python Imaging Library (PIL);
 2. Install [ZBar](http://zbar.sourceforge.net/) bar code reader:
-- Debian: ''apt-get install libzbar0 libzbar-dev'';
+
+  apt-get install libzbar0 libzbar-dev
+
 3. Install [zbarlight](https://github.com/Polyconseil/zbarlight/);
 4. Install [cv_bridge](http://wiki.ros.org/cv_bridge).
 
