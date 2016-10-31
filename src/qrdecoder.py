@@ -13,7 +13,7 @@ class decoder:
 		self.image_pub = rospy.Publisher("qrcode",String,queue_size=10)
 
 		self.bridge = CvBridge()
-		self.image_sub = rospy.Subscriber(rospy.get_param("/mbot05/qrdecoder/img_topic"),Image,self.callback)
+		self.image_sub = rospy.Subscriber(rospy.get_param("qrdecoder/img_topic"),Image,self.callback)
 
 	def callback(self,data):
 		# convert sensor_msgs::Image to opencv
