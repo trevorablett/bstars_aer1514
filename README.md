@@ -1,12 +1,12 @@
 # ros-qr-listener
-''ros-qr-listener'' is a ROS wrapper for zbarlight to read QR codes.
+''ros-qr-listener'' is a ROS wrapper for [zbarlight](https://github.com/Polyconseil/zbarlight/) to read QR codes.
 
 # Installation
 
 1. Instal Python Imaging Library (PIL);
 2. Install ZBar bar code reader <http://zbar.sourceforge.net/>:
 - Debian: ''apt-get install libzbar0 libzbar-dev'';
-3. Install ''zbarlight'' <https://github.com/Polyconseil/zbarlight/>;
+3. Install [zbarlight](https://github.com/Polyconseil/zbarlight/);
 4. Install ''cv_bridge'' <http://wiki.ros.org/cv_bridge>.
 
 # Example
