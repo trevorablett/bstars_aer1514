@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Example camera launch -->
+    <node pkg="uvc_camera" type="uvc_camera_node" name="uvc_camera"/>
+
+    <!-- QR CODE LISTENER -->
+    <node name="qrdecoder" pkg="qr_listener" type="qrdecoder.py">
+          <param name="img_topic" value="/mbot05/asus_camera" type="string"/>
+    </node>
+    <!-- END QR CODE LISTENER -->
+
+</launch>
