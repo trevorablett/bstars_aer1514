@@ -1,0 +1,3 @@
+[submodule "turtlebot_ws/src/usb_cam"]
+	path = turtlebot_ws/src/usb_cam
+	url = git@github.com:bosch-ros-pkg/usb_cam.git
