@@ -2,11 +2,11 @@
 
 <launch>
   <!--Core packages to run turtlebot-->
-  <include file="$(find turtlebot_bringup)"/launch/minimal.launch">
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch">
     <arg name="3d_sensor" value="astra" />
   </include>
 
-  <include file="$(find turtlebot_bringup)"/launch/3dsensor.launch">
+  <include file="$(find turtlebot_bringup)/launch/3dsensor.launch">
     <arg name="3d_sensor" value="astra" />
   </include>
 
