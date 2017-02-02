@@ -1,0 +1,28 @@
+<!--Basic launch file to have the turtlebot up and running-->
+
+<launch>
+  <!--Core packages to run turtlebot-->
+  <include file="$(find turtlebot_bringup)"/launch/minimal.launch">
+    <arg name="3d_sensor" value="astra" />
+  </include>
+
+  <include file="$(find turtlebot_bringup)"/launch/3dsensor.launch">
+    <arg name="3d_sensor" value="astra" />
+  </include>
+
+  <!--Core packages to run turtlebot-->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="true"/>
+  </node>
+
+  <!--Camera driver-->
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+
+</launch>
