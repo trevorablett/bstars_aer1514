@@ -1,0 +1,8 @@
+prefix=/home/stars/trevor/catkin_workspaces/bstars_aer1514/turtlebot_ws/devel
+
+Name: usb_cam
+Description: Description of usb_cam
+Version: 0.3.4
+Cflags: -I/home/stars/trevor/catkin_workspaces/bstars_aer1514/turtlebot_ws/src/usb_cam/include
+Libs: -L/home/stars/trevor/catkin_workspaces/bstars_aer1514/turtlebot_ws/devel/lib -lusb_cam
+Requires: 

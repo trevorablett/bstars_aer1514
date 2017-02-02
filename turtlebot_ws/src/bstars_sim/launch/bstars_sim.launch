@@ -1,0 +1,7 @@
+<launch>
+  <arg name="world"  default="$(find bstars_sim)/worlds/turtlebot_hallway_world.world"/>
+
+  <include file="$(find turtlebot_gazebo)/launch/turtlebot_world.launch">
+    <arg name="world_file" default="$(arg world)"/>
+  </include>
+</launch>
