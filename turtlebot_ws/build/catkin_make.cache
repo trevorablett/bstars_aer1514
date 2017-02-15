@@ -1,2 +1,0 @@
-bstars_sim:usb_cam
--DCATKIN_DEVEL_PREFIX=/home/stars/trevor/catkin_workspaces/bstars_aer1514/turtlebot_ws/devel -DCMAKE_INSTALL_PREFIX=/home/stars/trevor/catkin_workspaces/bstars_aer1514/turtlebot_ws/install -G Unix Makefiles
