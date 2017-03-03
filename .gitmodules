@@ -1,6 +1,3 @@
 [submodule "turtlebot_ws/src/usb_cam"]
 	path = turtlebot_ws/src/usb_cam
 	url = https://github.com/bosch-ros-pkg/usb_cam.git
-[submodule "turtlebot_ws/src/ros-qr-listener"]
-	path = turtlebot_ws/src/ros-qr-listener
-	url = https://github.com/jalmasgarcia/ros-qr-listener.git

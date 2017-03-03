@@ -14,7 +14,7 @@
     <param name="use_gui" value="true"/>
   </node>
 
-  <!--Camera driver-->
+  <!--Camera driver for arbbec camera-->
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video1" />
     <param name="image_width" value="1280" />
@@ -24,7 +24,7 @@
     <param name="io_method" value="mmap"/>
   </node>
 
-  <!--Camera driver-->
+  <!--Camera driver for netbook webcam-->
   <node name="web_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="640" />

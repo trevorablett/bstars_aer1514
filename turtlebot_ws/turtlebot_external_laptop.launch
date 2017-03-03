@@ -1,0 +1,10 @@
+<!-- basic launch file for user laptop -->
+<launch>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="true"/>
+  </node>
+
+  <!--  RVIZ? navigation stack stuff? other laptop nodes? etc. -->
+
+</launch>

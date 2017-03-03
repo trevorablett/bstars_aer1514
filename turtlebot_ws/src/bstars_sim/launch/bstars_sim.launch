@@ -1,7 +1,39 @@
+<!-- turtlebot simulation with various options as arguments -->
+
 <launch>
   <arg name="world"  default="$(find bstars_sim)/worlds/turtlebot_hallway_world.world"/>
+  <arg name="gmapping" default="false"/>
+  <arg name="amcl" default="false"/>
+  <arg name="amcl_map" default="$(find bstars_sim)/maps/sim_hallways_modified.yaml"/>
 
   <include file="$(find turtlebot_gazebo)/launch/turtlebot_world.launch">
     <arg name="world_file" default="$(arg world)"/>
   </include>
+
+  <!-- gmapping options -->
+  <group if="$(arg gmapping)">
+    <!-- start up the interactive markers to control the robot in RVIZ -->
+    <include file="$(find turtlebot_interactive_markers)/launch/interactive_markers.launch"/>
+
+    <!-- rviz viewer with sensors and robot -->
+    <include file="$(find turtlebot_rviz_launchers)/launch/view_robot.launch"/>
+
+    <!-- gmapping demo (consider changing some parameters here)-->
+    <include file="$(find turtlebot_gazebo)/launch/gmapping_demo.launch"/>
+
+    <!-- rviz viewer for gmapping -->
+    <node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find turtlebot_rviz_launchers)/rviz/navigation.rviz"/>
+  </group>
+
+  <!-- amcl options -->
+  <group if="$(arg amcl)">
+    <!-- start up the interactive markers to control the robot in RVIZ -->
+    <include file="$(find turtlebot_gazebo)/launch/amcl_demo.launch">
+      <arg name="map_file" default="$(arg amcl_map)"/>
+    </include>
+
+    <!-- rviz viewer for amcl -->
+    <node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find turtlebot_rviz_launchers)/rviz/navigation.rviz"/>
+  </group>
+
 </launch>
