@@ -1,6 +1,10 @@
 <!--Basic launch file to have the turtlebot up and running-->
 
 <launch>
+  <!-- input arguments -->
+  <arg name="amcl" default="false"/>
+  <arg name="amcl_map" default="$(find bstars_sim)/maps/utias_hallways.yaml"/>
+
   <!--Core packages to run turtlebot-->
   <include file="$(find turtlebot_bringup)/launch/minimal.launch">
     <arg name="3d_sensor" value="astra" />
@@ -51,6 +55,17 @@
   <node pkg="joy" type="joy_node" name="joystick"/>
     <param name="dev" value="/dev/input/js1"/>
   </node>
+
+  <!-- amcl -->
+  <group if="$(arg amcl)">
+    <!-- start up amcl with map-->
+    <include file="$(find turtlebot_gazebo)/launch/amcl_demo.launch">
+      <arg name="map_file" default="$(arg amcl_map)"/>
+    </include>
+
+    <!-- rviz viewer for amcl -->
+    <node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find turtlebot_rviz_launchers)/rviz/navigation.rviz"/>
+  </group>
   
 
 </launch>

@@ -27,7 +27,7 @@
 
   <!-- amcl options -->
   <group if="$(arg amcl)">
-    <!-- start up the interactive markers to control the robot in RVIZ -->
+    <!-- start up amcl -->
     <include file="$(find turtlebot_gazebo)/launch/amcl_demo.launch">
       <arg name="map_file" default="$(arg amcl_map)"/>
     </include>
