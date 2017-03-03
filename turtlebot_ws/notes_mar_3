@@ -1,0 +1,12 @@
+- fix typo at end of line for ps3 controller in basic launch (no />, just >)
+- amcl needs to be launched from the robot (but the rviz viewer should be launched from the external laptop)
+- if we're launch amcl, we should NOT be launching 3dsensor (amcl takes care of this and there are conflicts if you try to launch both)
+- fix references to gazebo and navigation, for the amcl nodes make sure that they're correct
+- in the exercise room, make sure that the robot goes SLOWER, especially right after entering, because the floor lip could cause it to fall over if it goes over it at a high speed.
+- try to run everything via ssh so it can be monitored
+- on a day where nobody is around (so morning or evening), try to map out the leftmost area (machine shop, etc.) with gmapping, and draw in permanent obstacles to the regular map
+- need to be careful about times when a valid plan ends up being unreachable, robot will get as close as possible but it is difficult to know what will cause it to stop
+- fix the grey line doorways in the map, all doorways that lead to other hallways should be white (otherwise robot doesn't know that it can travel there)
+- change origin on map so that it actually lines up with the bottom part of the main hallway (where the turtlebots are stored). just makes it a little easier to get going
+- might have to drop the max speed down based on what will be able to actually detect qr codes
+- confirm with tim.. are all codes going to be on the wall? can they be on the floor? on the wall, is there a height we can expect?
