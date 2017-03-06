@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>ros_qr_listener</name>
+  <name>qr_listener</name>
   <version>1.0.0</version>
   <description>The ros_qr_listener package</description>
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ros_qr_listener)
+project(qr_listener)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -116,6 +116,10 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(qr_localizer src/qr_localizer.cpp)
+target_link_libraries(qr_localizer ${catkin_LIBRARIES})
+add_dependencies(qr_localizer qr_generate_messages_cpp)
 
 ## Declare a C++ library
 # add_library(continue_rule
