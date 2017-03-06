@@ -1,0 +1,26 @@
+<!-- basic launch file for user laptop -->
+<launch>
+
+  <!-- input arguments -->
+  <arg name="amcl" default="false"/>
+  <arg name="amcl_map" default="$(find bstars_sim)/maps/utias_hallways.yaml"/>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="true"/>
+  </node>
+
+  <!--  RVIZ? navigation stack stuff? other laptop nodes? etc. -->
+  <!-- amcl -->
+  <group if="$(arg amcl)">
+    <!-- start up amcl with map-->
+    <!--
+    <include file="$(find turtlebot_navigation)/launch/amcl_demo.launch">
+      <arg name="map_file" default="$(arg amcl_map)"/>
+    </include>
+  -->
+
+    <!-- rviz viewer for amcl -->
+    <node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find turtlebot_rviz_launchers)/rviz/navigation.rviz"/>
+  </group>
+
+</launch>

@@ -1,6 +1,10 @@
 <!--Basic launch file to have the turtlebot up and running-->
 
 <launch>
+  <!-- input arguments -->
+  <arg name="amcl" default="false"/>
+  <arg name="amcl_map" default="$(find bstars_sim)/maps/utias_hallways.yaml"/>
+
   <!--Core packages to run turtlebot-->
   <include file="$(find turtlebot_bringup)/launch/minimal.launch">
     <arg name="3d_sensor" value="astra" />
@@ -14,7 +18,7 @@
     <param name="use_gui" value="true"/>
   </node>
 
-  <!--Camera driver-->
+  <!--Camera driver for arbbec camera-->
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video1" />
     <param name="image_width" value="1280" />
@@ -23,5 +27,45 @@
     <param name="camera_frame_id" value="usb_cam" />
     <param name="io_method" value="mmap"/>
   </node>
+
+  <!--Camera driver for netbook webcam-->
+  <node name="web_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+
+  <!--ps3 controller-->
+  <!-- consider adding the sixad -s to this file as well (through a shell script) -->
+  <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
+  <include file="$(find turtlebot_teleop)/launch/includes/velocity_smoother.launch.xml"/>
+
+  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy" name="turtlebot_teleop_joystick">
+    <param name="scale_angular" value="1.5"/>
+    <param name="scale_linear" value="0.5"/>
+    <param name="axis_deadman" value="10"/>
+    <param name="axis_linear" value="1"/>
+    <param name="axis_angular" value="0"/>
+    <remap from="turtlebot_teleop_joystick/cmd_vel" to="teleop_velocity_smoother/raw_cmd_vel"/>
+  </node>
+
+  <node pkg="joy" type="joy_node" name="joystick"/>
+    <param name="dev" value="/dev/input/js1"/>
+  </node>
+
+  <!-- amcl -->
+  <group if="$(arg amcl)">
+    <!-- start up amcl with map-->
+    <include file="$(find turtlebot_gazebo)/launch/amcl_demo.launch">
+      <arg name="map_file" default="$(arg amcl_map)"/>
+    </include>
+
+    <!-- rviz viewer for amcl -->
+    <node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find turtlebot_rviz_launchers)/rviz/navigation.rviz"/>
+  </group>
+  
 
 </launch>
