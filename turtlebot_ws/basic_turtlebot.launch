@@ -52,14 +52,14 @@
     <remap from="turtlebot_teleop_joystick/cmd_vel" to="teleop_velocity_smoother/raw_cmd_vel"/>
   </node>
 
-  <node pkg="joy" type="joy_node" name="joystick"/>
+  <node pkg="joy" type="joy_node" name="joystick">
     <param name="dev" value="/dev/input/js1"/>
   </node>
 
   <!-- amcl -->
   <group if="$(arg amcl)">
     <!-- start up amcl with map-->
-    <include file="$(find turtlebot_gazebo)/launch/amcl_demo.launch">
+    <include file="$(find turtlebot_navigation)/launch/amcl_demo.launch">
       <arg name="map_file" default="$(arg amcl_map)"/>
     </include>
 
