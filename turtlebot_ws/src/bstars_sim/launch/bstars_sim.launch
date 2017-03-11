@@ -27,9 +27,22 @@
 
   <!-- amcl options -->
   <group if="$(arg amcl)">
-    <!-- start up amcl -->
-    <include file="$(find turtlebot_gazebo)/launch/amcl_demo.launch">
-      <arg name="map_file" default="$(arg amcl_map)"/>
+    <!-- Map server -->
+  	<node name="map_server" pkg="map_server" type="map_server" args="$(arg amcl_map)" />
+
+    <!-- Localization -->
+    <arg name="initial_pose_x" default="0.0"/>
+    <arg name="initial_pose_y" default="0.0"/>
+    <arg name="initial_pose_a" default="0.0"/>
+    <include file="$(find turtlebot_navigation)/launch/includes/amcl/amcl.launch.xml">
+      <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+      <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+      <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+    </include>
+
+	  <!-- Move base -->
+	  <include file="$(find turtlebot_navigation)/launch/includes/move_base.launch.xml">
+      <arg name="custom_param_file" value="$(find bstars_sim)/param/sim_params.yaml"/>
     </include>
 
     <!-- rviz viewer for amcl -->

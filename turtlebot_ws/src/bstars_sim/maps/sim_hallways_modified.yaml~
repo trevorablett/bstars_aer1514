@@ -1,6 +1,6 @@
 image: sim_hallways_modified.pgm
 resolution: 0.050000
-origin: [-7.870000, -15.1500000, 0.000000]
+origin: [-7.870000, -28.0500000, 0.000000]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.196

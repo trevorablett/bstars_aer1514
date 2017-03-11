@@ -1,0 +1,2 @@
+DWAPlannerROS:
+  max_rot_vel: 0.67 # ONLY needed for simulation, to prevent weird spinny behaviour
