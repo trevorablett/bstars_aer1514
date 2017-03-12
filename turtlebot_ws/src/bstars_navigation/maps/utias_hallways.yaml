@@ -1,7 +1,7 @@
 image: utias_hallways.pgm
 resolution: 0.08
 # resolution calculated using scale from hallways image, 25 pixels per 2m, therefore 2/25=0.08 m/pixel
-origin: [-17.000000, -12.200000, 0.000000]
+origin: [-61.040000, -22.4400000, 0.000000]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.196

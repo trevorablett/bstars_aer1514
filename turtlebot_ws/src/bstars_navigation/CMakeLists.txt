@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(bstars_navigation)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
-# add_definitions(-std=c++11)
+add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   roscpp
   rospy
+  roslib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,6 +136,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/bstars_navigation_node.cpp)
+add_executable(waypoints_node src/waypoints_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,6 +152,7 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(waypoints_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##
