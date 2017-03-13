@@ -203,7 +203,7 @@ int main(int argc, char** argv){
   bool wp_load_success = wp.loadWaypoints("waypoints.txt");
   bool wp_ind_load_success = wp.loadGoalIndex();
 
-  if(wp_load_success)
+  if(wp_load_success && wp_ind_load_success)
   {
     wp.goToWaypoints();
   }
