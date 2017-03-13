@@ -20,7 +20,7 @@ public:
   {
     ac = new MoveBaseClient("move_base", true);
     initialized_ = false;
-    current_goal_index_ = 1; //TODO: THIS SHOULD BE LOADED (TO "CONTINUE" FROM STOPPED POSITION), NOT SET AS 0
+    current_goal_index_ = 0; // set as 0 by default, but loadGoalIndex overwrites
   }
 
   ~WaypointsNode()
@@ -39,17 +39,17 @@ public:
 
   // load the waypoints file
   // waypoints in file will be in form of x y yaw (separated by spaces)
-  int loadWaypoints()
+  int loadWaypoints(std::string wp_file_name)
   {
     std::string line;
     std::string path = ros::package::getPath("bstars_navigation");
-    path = path + "/param/waypoints.txt";
+    path = path + "/param/" + wp_file_name;
     std::ifstream wp_file(path.c_str());
     if(wp_file.is_open())
     {
       while(std::getline(wp_file, line))
       {
-        std::cout << line << "\n";
+        //std::cout << line << "\n";
         std::vector<float> row;
         std::string buf;
         std::stringstream ss(line);
@@ -74,8 +74,30 @@ public:
   // go to all waypoints, starting at current_goal_index_
   int goToWaypoints()
   {
-    while(current_goal_index_ < goal_vec_.size())
+    if (!initialized_)
     {
+      ROS_INFO("waypoints_node not initialized. stopping.");
+      return 0;
+    }
+
+    while(current_goal_index_ < goal_vec_.size() && ros::ok())
+    {
+      // check to see if the waypoints should be reset
+      bool reset_param;
+      if (ros::param::get("~reset_index", reset_param))
+      {
+        if(reset_param)
+        {
+          resetGoalIndex();
+          ros::param::set("~reset_index", false);
+        }
+      }
+      else
+      {
+        ros::param::set("~reset_index", false);
+      }
+
+      // set the waypoint goal
       move_base_msgs::MoveBaseGoal goal = vecToMoveBaseGoal(goal_vec_[current_goal_index_]);
       goal.target_pose.header.frame_id = "map";
       goal.target_pose.header.stamp = ros::Time::now();
@@ -84,13 +106,15 @@ public:
                goal.target_pose.pose.position.y,
                goal_vec_[current_goal_index_][2]);
       ac->sendGoal(goal);
-      ROS_INFO("Goal sucessfully sent"); //without this message, it doesn't always run
+      ROS_INFO("Goal index of %d successfully sent", current_goal_index_); //without this message, it doesn't always run
 
       ac->waitForResult();
       if(ac->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
         ROS_INFO("woop woop");
       else
-        ROS_INFO("aw raspberries");
+        ROS_WARN("aw raspberries, didn't get to the point");
+
+      if(ros::ok()) saveCurrentGoalIndex(); //crazy bug without this if statement
 
       current_goal_index_++;
     }
@@ -110,17 +134,54 @@ public:
     return out;
   }
 
-  // append a visited waypoint to a "visited waypoints" file
-  // store the index of the last visited waypoint in another file
-  int storeVisitedWaypoint()
+  // save the current goal index to a text file
+  int saveCurrentGoalIndex()
   {
-
+    std::string path = ros::package::getPath("bstars_navigation");
+    path = path + "/param/saved_goal_index.txt";
+    std::ofstream wp_index_file(path.c_str(), std::fstream::out | std::fstream::trunc);
+    if(wp_index_file.is_open() && ros::ok())
+    {
+      wp_index_file << current_goal_index_;
+      wp_index_file.close();
+    }
+    else
+    {
+      ROS_WARN("Could not open param/saved_goal_index.txt in bstars_navigation");
+      return 0;
+    }
+    return 1;
   }
 
-  // reset the stored waypoints files
-  int resetStoredWaypoints()
+  int loadGoalIndex()
   {
+    std::string line;
+    std::string path = ros::package::getPath("bstars_navigation");
+    path = path + "/param/saved_goal_index.txt";
+    std::ifstream wp_index_file(path.c_str());
+    if(wp_index_file.is_open())
+    {
+      while(std::getline(wp_index_file, line))
+      {
+        current_goal_index_ = std::stoi(line);
+      }
+      wp_index_file.close();
+    }
+    else
+    {
+      ROS_WARN("Could not find param/saved_goal_index.txt in bstars_navigation");
+      return 0;
+    }
+    ROS_INFO("Initial goal index set to %d.", current_goal_index_);
+    return 1;
+  }
 
+  // reset the goal index
+  int resetGoalIndex()
+  {
+    current_goal_index_ = 0;
+    saveCurrentGoalIndex();
+    ROS_INFO("Pose goal index reset.");
   }
 
 private:
@@ -131,14 +192,18 @@ private:
 
 };
 
+
 int main(int argc, char** argv){
   ros::init(argc, argv, "waypoints_node");
+  ros::NodeHandle nh;
+
   WaypointsNode wp;
   wp.init();
 
-  bool load_success = wp.loadWaypoints();
+  bool wp_load_success = wp.loadWaypoints("waypoints.txt");
+  bool wp_ind_load_success = wp.loadGoalIndex();
 
-  if(load_success)
+  if(wp_load_success)
   {
     wp.goToWaypoints();
   }
@@ -166,5 +231,6 @@ int main(int argc, char** argv){
     ROS_INFO("The base failed to move forward 1 meter for some reason");
   */
 
+  ros::shutdown();
   return 0;
 }

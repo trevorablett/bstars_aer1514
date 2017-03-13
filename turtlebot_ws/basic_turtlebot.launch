@@ -3,7 +3,7 @@
 <launch>
   <!-- input arguments -->
   <arg name="amcl" default="false"/>
-  <arg name="amcl_map" default="$(find bstars_navigation)/maps/utias_hallways.yaml"/>
+  <arg name="map_file" default="$(find bstars_navigation)/maps/utias_hallways.yaml"/>
 
   <!--Core packages to run turtlebot-->
   <include file="$(find turtlebot_bringup)/launch/minimal.launch">
@@ -52,7 +52,7 @@
   <group if="$(arg amcl)">
     <!-- start up amcl with map-->
     <include file="$(find bstars_navigation)/launch/bstars_amcl.launch">
-      <arg name="map_file" default="$(arg amcl_map)"/>
+      <arg name="map_file" default="$(arg map_file)"/>
     </include>
   </group>
   
