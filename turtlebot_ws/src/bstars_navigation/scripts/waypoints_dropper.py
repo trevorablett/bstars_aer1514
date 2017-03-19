@@ -15,23 +15,6 @@ from PyQt4 import QtGui, QtCore
 import sys
 
 
-class WDWidget(QtGui.QWidget):
-    def __init__(self):
-        super(WDWidget, self).__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setGeometry(300, 300, 250, 150)
-        self.setWindowTitle('Event handler')
-        self.show()
-
-    def keyPressEvent(self, e):
-        if e.key() == QtCore.Qt.Key_Space:
-            self.save_point()
-        elif e.key() == QtCore.Qt.Key_Escape:
-            self.close()
-
-
 
 class WaypointDropper(QtGui.QWidget):
     def __init__(self):
@@ -54,11 +37,6 @@ class WaypointDropper(QtGui.QWidget):
 
         self.save_file = save_path + filename
 
-        # subscribe to the amcl_pose node
-        # this was turning into a hassle because of the blocking of spin
-        #rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.amcl_pose_callback)
-        #self.current_pose = [0,0,0]
-
         # tf listener
         self.listener = tf.TransformListener()
         self.current_pose = [0, 0, 0]
@@ -73,24 +51,6 @@ class WaypointDropper(QtGui.QWidget):
             self.get_tf()
         elif e.key() == QtCore.Qt.Key_Escape:
             self.close()
-
-    # may have to replace this with a callback for the transform between base_link and map
-    # this would be the same values, but it would be called much more frequently
-    # the tf is from map to base_link
-    '''
-    def amcl_pose_callback(self, pose_stamped):
-        x = pose_stamped.pose.pose.position.x
-        y = pose_stamped.pose.pose.position.y
-        rpy = euler_from_quaternion([pose_stamped.pose.pose.orientation.x,
-                                     pose_stamped.pose.pose.orientation.y,
-                                     pose_stamped.pose.pose.orientation.z,
-                                     pose_stamped.pose.pose.orientation.w])
-        yaw = rpy[2]
-        self.current_pose = [x,y,yaw]
-        if self.widget.space_pressed:
-            self.save_point()
-            self.widget.space_pressed = False
-    '''
 
     def get_tf(self):
         try:
