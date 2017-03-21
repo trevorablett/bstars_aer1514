@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+	<node name="qrdecoder" pkg="qr_listener" type="qrdecoder.py" ns="usb_cam_qr">
+        <param name="img_topic" value="/usb_cam/image_raw" type="string"/>
+    </node>
+
+    <node name="qrdecoder" pkg="qr_listener" type="qrdecoder.py" ns="web_cam_qr">
+        <param name="img_topic" value="/web_cam/image_raw" type="string"/>
+    </node>
+</launch>

@@ -30,6 +30,9 @@
     <param name="io_method" value="mmap"/>
   </node>
 
+  <!--Qr code readers for both cameras -->
+  <include file="$(find qr_listener)/launch/dual_camera.launch"/>
+
   <!--ps3 controller-->
   <!-- consider adding the sixad -s to this file as well (through a shell script) -->
   <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
