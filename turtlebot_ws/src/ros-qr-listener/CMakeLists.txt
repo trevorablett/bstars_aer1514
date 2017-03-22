@@ -8,6 +8,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  tf
+  tf2		
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -120,6 +123,10 @@ include_directories(
 add_executable(qr_localizer src/qr_localizer.cpp)
 target_link_libraries(qr_localizer ${catkin_LIBRARIES})
 add_dependencies(qr_localizer qr_generate_messages_cpp)
+
+add_executable(marker_visualize src/marker_visualize.cpp)
+target_link_libraries(marker_visualize ${catkin_LIBRARIES})
+add_dependencies(marker_visualize qr_generate_messages_cpp)
 
 ## Declare a C++ library
 # add_library(continue_rule

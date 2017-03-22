@@ -1,18 +1,122 @@
-#include "ros/ros.h"
-#include "std_msgs/String.h"
+#include <ros/ros.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf/transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <std_msgs/String.h>
+#include <iostream>
+#include <string>
+#include <algorithm>
 
-void qrCallback(const std_msgs::String::ConstPtr& msg)
+//TODO: Why do the qr frame spawn without parents if you don't launch the simulation first
+// ... then qr scripts, will this happen on the real robot?
+//TODO: Why does the TF Listener always give 0 as the transform
+
+namespace patch
 {
-  ROS_INFO("qr data received: [%s]", msg->data.c_str());
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
 }
+
+class QrBroadcaster{
+
+  public:
+    int i;
+    std::vector<std::string> store;
+
+    QrBroadcaster(){
+
+      n.setParam("qr_count", 0);
+      tf_listener = new tf2_ros::TransformListener(tfBuffer);
+      sub = n.subscribe("qrcode", 1,
+      &QrBroadcaster::qrCallback, this);
+    }
+
+  private:
+    ros::NodeHandle n;
+    ros::Subscriber sub;
+    tf::TransformBroadcaster qr_broadcaster;
+    tf2_ros::TransformListener* tf_listener;
+    tf2_ros::Buffer tfBuffer;
+
+    void qrCallback(const std_msgs::String::ConstPtr& msg){
+
+        n.getParam("qr_count", i);
+        bool far_enough = false;
+
+        if(std::find(store.begin(), store.end(), msg->data.c_str()) != store.end()) {
+
+          geometry_msgs::TransformStamped transform;
+
+          for (int j = 0; j<= store.size()-1; j+=1){
+            std::string frame_text = "qr_location_";
+            frame_text.append(patch::to_string(j));
+
+            try {
+                transform = tfBuffer.lookupTransform("base_link", frame_text, ros::Time(0));
+            } catch (tf::TransformException ex) {
+                ROS_ERROR("%s",ex.what());
+            }
+
+            ROS_INFO_STREAM("distance: " << transform.transform.translation.x);
+
+            if(false){
+              far_enough = true;
+            }
+          }
+
+          if(far_enough){
+            std::string frame_text = "qr_location_";
+            frame_text.append(patch::to_string(i));
+
+            ROS_INFO_STREAM("frame: " << frame_text);
+            ROS_INFO("qr data received: [%s]", msg->data.c_str());
+
+            store.push_back(msg->data.c_str());
+
+            qr_broadcaster.sendTransform(tf::StampedTransform(
+              tf::Transform(tf::Quaternion::getIdentity(), tf::Vector3(0.0, 0.0, 0.0)),
+              ros::Time::now(),"base_link", frame_text));
+
+            i+=1;
+            n.setParam("qr_count", i);
+          }
+
+        } else {
+          std::string frame_text = "qr_location_";
+          frame_text.append(patch::to_string(i));
+
+          ROS_INFO_STREAM("frame: " << frame_text);
+          ROS_INFO("qr data received: [%s]", msg->data.c_str());
+
+          store.push_back(msg->data.c_str());
+
+          qr_broadcaster.sendTransform(tf::StampedTransform(
+            tf::Transform(tf::Quaternion::getIdentity(), tf::Vector3(0.0, 0.0, 0.0)),
+            ros::Time::now(), "base_link", frame_text));
+
+          i+=1;
+          n.setParam("qr_count", i);
+        }
+
+    }
+
+    std::vector<std::string> get_stored_words(){
+      return store;
+    }
+
+};
+
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "qr_localizer");
 
-  ros::NodeHandle n;
-
-  ros::Subscriber sub = n.subscribe("qrcode", 1000, qrCallback);
+  QrBroadcaster pb;
 
   ros::spin();
 

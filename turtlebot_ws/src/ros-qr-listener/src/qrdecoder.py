@@ -21,7 +21,7 @@ class decoder:
 			cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
 		except CvBridgeError as e:
 			print(e)
-		
+
 		# convert opencv image to pil image
 		pil_im = PIL.Image.fromarray(cv_image)
 		#pil_im.show()
