@@ -11,3 +11,16 @@
 - change origin on map so that it actually lines up with the bottom part of the main hallway (where the turtlebots are stored). just makes it a little easier to get going
 - might have to drop the max speed down based on what will be able to actually detect qr codes
 - confirm with tim.. are all codes going to be on the wall? can they be on the floor? on the wall, is there a height we can expect?
+
+
+
+
+NEW NOTES - MARCH 22
+- bluetooth wasn't on by default. if this is the case, may have to:
+	sudo chmod +x /usr/sbin/bluetoothd
+	sudo service bluetooth restart
+- need to give move_base/amcl our OWN parameters file so we can set max velocity, etc. accordingly
+	- just copy how it's done for bstars_sim
+- try to reduce costmap to reduce "wavy" behaviour between waypoints (going away from walls when we want it close to walls)
+- try to increase tolerance on waypoints to see if it drives through them more continuously
+- set max speed to 0.25 m/s (DWAPlannerROS and either x max speed or trans max speed, try both in sim)
