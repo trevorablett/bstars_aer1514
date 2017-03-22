@@ -1,0 +1,13 @@
+- REQUIRES MORE TESTING need to be careful about times when a valid plan ends up being unreachable, robot will get as close as possible but it is difficult to know what will cause it to stop
+
+
+NEW NOTES - MARCH 22
+- bluetooth wasn't on by default. if this is the case, may have to:
+	sudo chmod +x /usr/sbin/bluetoothd
+	sudo service bluetooth restart
+- need to give move_base/amcl our OWN parameters file so we can set max velocity, etc. accordingly
+	- just copy how it's done for bstars_sim
+- try to reduce costmap to reduce "wavy" behaviour between waypoints (going away from walls when we want it close to walls)
+- try to increase tolerance on waypoints to see if it drives through them more continuously
+- set max speed to 0.25 m/s (DWAPlannerROS and either x max speed or trans max speed, try both in sim)
+- try to glue new gmapped rooms to the actual map, then test them out
