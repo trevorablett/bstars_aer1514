@@ -1,7 +1,9 @@
-#include "ros/ros.h"
-#include <tf/transform_listener.h>
+#include <ros/ros.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
 #include <tf/transform_broadcaster.h>
-#include "std_msgs/String.h"
+#include <geometry_msgs/TransformStamped.h>
+#include <std_msgs/String.h>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -27,18 +29,19 @@ class QrBroadcaster{
     std::vector<std::string> store;
 
     QrBroadcaster(){
-      n.setParam("qr_count", 0);
 
+      n.setParam("qr_count", 0);
+      tf_listener = new tf2_ros::TransformListener(tfBuffer);
       sub = n.subscribe("qrcode", 1,
       &QrBroadcaster::qrCallback, this);
     }
 
   private:
-    tf::TransformBroadcaster qr_broadcaster;
-    tf::TransformListener listener;
     ros::NodeHandle n;
     ros::Subscriber sub;
-
+    tf::TransformBroadcaster qr_broadcaster;
+    tf2_ros::TransformListener* tf_listener;
+    tf2_ros::Buffer tfBuffer;
 
     void qrCallback(const std_msgs::String::ConstPtr& msg){
 
@@ -47,19 +50,19 @@ class QrBroadcaster{
 
         if(std::find(store.begin(), store.end(), msg->data.c_str()) != store.end()) {
 
-          tf::StampedTransform transform;
+          geometry_msgs::TransformStamped transform;
 
           for (int j = 0; j<= store.size()-1; j+=1){
             std::string frame_text = "qr_location_";
             frame_text.append(patch::to_string(j));
 
             try {
-                listener.lookupTransform("base_link", frame_text, ros::Time(0), transform);
+                transform = tfBuffer.lookupTransform("base_link", frame_text, ros::Time(0));
             } catch (tf::TransformException ex) {
                 ROS_ERROR("%s",ex.what());
             }
 
-            ROS_INFO_STREAM("distance: " << transform.getOrigin().x());
+            ROS_INFO_STREAM("distance: " << transform.transform.translation.x);
 
             if(false){
               far_enough = true;
