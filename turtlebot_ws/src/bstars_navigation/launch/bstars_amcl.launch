@@ -33,9 +33,12 @@
     <arg name="custom_param_file" value="$(arg custom_param_file)"/>
   </include>
 
+  <arg name="waypoints" default="false"/>
   <!-- BStars waypoints - in new terminal -->
-  <node name="waypoints_node" pkg="bstars_navigation" type="waypoints_node" launch-prefix="xterm -e">
-    <param name="~reset_index" value="false"/>
-  </node>
+  <group if="$(arg waypoints)">
+    <node name="waypoints_node" pkg="bstars_navigation" type="waypoints_node" launch-prefix="xterm -e">
+      <param name="~reset_index" value="false"/>
+    </node>
+  </group>
 
 </launch>
