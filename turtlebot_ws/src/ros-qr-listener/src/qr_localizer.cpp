@@ -1,16 +1,14 @@
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
-#include <tf/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <std_msgs/String.h>
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <vector>
 
-//TODO: Why do the qr frame spawn without parents if you don't launch the simulation first
-// ... then qr scripts, will this happen on the real robot?
-//TODO: Why does the TF Listener always give 0 as the transform
+typedef std::vector<double> Vectors2d;
 
 namespace patch
 {
@@ -27,19 +25,19 @@ class QrBroadcaster{
   public:
     int i;
     std::vector<std::string> store;
+    std::map<char,Vectors2d> qr_locations;
 
     QrBroadcaster(){
 
       n.setParam("qr_count", 0);
-      tf_listener = new tf2_ros::TransformListener(tfBuffer);
       sub = n.subscribe("qrcode", 1,
       &QrBroadcaster::qrCallback, this);
+      tf_listener = new tf2_ros::TransformListener(tfBuffer);
     }
 
   private:
     ros::NodeHandle n;
     ros::Subscriber sub;
-    tf::TransformBroadcaster qr_broadcaster;
     tf2_ros::TransformListener* tf_listener;
     tf2_ros::Buffer tfBuffer;
 
@@ -57,8 +55,8 @@ class QrBroadcaster{
             frame_text.append(patch::to_string(j));
 
             try {
-                transform = tfBuffer.lookupTransform("base_link", frame_text, ros::Time(0));
-            } catch (tf::TransformException ex) {
+                transform = tfBuffer.lookupTransform("base_link", "odom", ros::Time(0));
+            } catch (tf2::TransformException ex) {
                 ROS_ERROR("%s",ex.what());
             }
 
@@ -66,6 +64,7 @@ class QrBroadcaster{
 
             if(false){
               far_enough = true;
+              //qr_locations[frame_text]=
             }
           }
 
@@ -78,9 +77,7 @@ class QrBroadcaster{
 
             store.push_back(msg->data.c_str());
 
-            qr_broadcaster.sendTransform(tf::StampedTransform(
-              tf::Transform(tf::Quaternion::getIdentity(), tf::Vector3(0.0, 0.0, 0.0)),
-              ros::Time::now(),"base_link", frame_text));
+            //store location here
 
             i+=1;
             n.setParam("qr_count", i);
@@ -95,9 +92,7 @@ class QrBroadcaster{
 
           store.push_back(msg->data.c_str());
 
-          qr_broadcaster.sendTransform(tf::StampedTransform(
-            tf::Transform(tf::Quaternion::getIdentity(), tf::Vector3(0.0, 0.0, 0.0)),
-            ros::Time::now(), "base_link", frame_text));
+          //store location here
 
           i+=1;
           n.setParam("qr_count", i);
