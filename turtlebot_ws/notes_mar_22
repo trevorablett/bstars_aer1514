@@ -8,6 +8,15 @@ NEW NOTES - MARCH 22
 - need to give move_base/amcl our OWN parameters file so we can set max velocity, etc. accordingly
 	- just copy how it's done for bstars_sim
 - try to reduce costmap to reduce "wavy" behaviour between waypoints (going away from walls when we want it close to walls)
+	- fixed by increasing the cost_scaling_factor (on both local and global cost map) to 20 (need to test on actual robot)
+		- TODO: add this to a parameter file that we're going to load
+		- /move_base/global_costmap/inflation_layer/cost_scaling_factor
+		- same but for local_costmap
 - try to increase tolerance on waypoints to see if it drives through them more continuously
+	- /move_base/DWAPlannerROS/xy_goal_tolerance - try 0.3 instead of 0.15
+	- /move_base/DWAPlannerROS/yaw_goal_tolerance
 - set max speed to 0.25 m/s (DWAPlannerROS and either x max speed or trans max speed, try both in sim)
+	- add to parameters
+	- /move_base/DWAPlannerROS/max_trans_vel
+	- /move_base/DWAPlannerROS/max_vel_x
 - try to glue new gmapped rooms to the actual map, then test them out

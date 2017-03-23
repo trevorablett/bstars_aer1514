@@ -11,8 +11,8 @@
          Probably is a bug in the nodelet manager: https://github.com/ros/nodelet_core/issues/7 --> 
     <arg name="scan_topic" value="/scan" />
   </include>
-
-  <!-- Map server -->
+os
+  <!-- Map server -->cd
   <arg name="map_file" default="$(env TURTLEBOT_MAP_FILE)"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 

@@ -59,6 +59,7 @@
       <arg name="map_file" default="$(arg map_file)"/>
       <arg name="waypoints" default="$(arg waypoints)"/>
       <arg name="waypoints_dropper" default="$(arg waypoints_dropper)"/>
+      <arg name="custom_param_file" value="$(find bstars_navigation)/param/nav_params.yaml"/>
     </include>
   </group>
   
