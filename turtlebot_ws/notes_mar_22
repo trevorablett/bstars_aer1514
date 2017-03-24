@@ -20,3 +20,5 @@ NEW NOTES - MARCH 22
 	- /move_base/DWAPlannerROS/max_trans_vel
 	- /move_base/DWAPlannerROS/max_vel_x
 - try to glue new gmapped rooms to the actual map, then test them out
+- move robot backward for a second or two when it's on the base as a "initial move off base" command, instead of instantly going to first waypoint
+- load ALL of the default move_base and amcl parameters, instead of just ours (and load them BEFORE loading our custom ones, so our custom ones will overwrite). that way, if someone totally screwed up the existing files, we can still save ourselves.
