@@ -7,8 +7,10 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <cmath>
 
-typedef std::vector<double> Vectors2d;
+typedef std::vector<float> Vectors2d;
 
 namespace patch
 {
@@ -20,18 +22,20 @@ namespace patch
     }
 }
 
-class QrBroadcaster{
+class QrLocalizer{
 
   public:
     int i;
+    float threshold;
     std::vector<std::string> store;
-    std::map<char,Vectors2d> qr_locations;
+    std::map<std::string, Vectors2d> qr_locations;
 
-    QrBroadcaster(){
+    QrLocalizer(){
 
       n.setParam("qr_count", 0);
+      n.setParam("distance_threshold", 1);
       sub = n.subscribe("qrcode", 1,
-      &QrBroadcaster::qrCallback, this);
+      &QrLocalizer::qrCallback, this);
       tf_listener = new tf2_ros::TransformListener(tfBuffer);
     }
 
@@ -40,31 +44,36 @@ class QrBroadcaster{
     ros::Subscriber sub;
     tf2_ros::TransformListener* tf_listener;
     tf2_ros::Buffer tfBuffer;
+    geometry_msgs::TransformStamped robot_location;
+
 
     void qrCallback(const std_msgs::String::ConstPtr& msg){
-
         n.getParam("qr_count", i);
-        bool far_enough = false;
+        n.getParam("distance_threshold", threshold);
 
         if(std::find(store.begin(), store.end(), msg->data.c_str()) != store.end()) {
 
-          geometry_msgs::TransformStamped transform;
+          float distance;
+          bool far_enough = true;
+          Vectors2d v;
 
           for (int j = 0; j<= store.size()-1; j+=1){
             std::string frame_text = "qr_location_";
             frame_text.append(patch::to_string(j));
 
             try {
-                transform = tfBuffer.lookupTransform("base_link", "odom", ros::Time(0));
+                robot_location = tfBuffer.lookupTransform("map", "base_link", ros::Time(0));
             } catch (tf2::TransformException ex) {
                 ROS_ERROR("%s",ex.what());
             }
 
-            ROS_INFO_STREAM("distance: " << transform.transform.translation.x);
+            distance = sqrt(pow((robot_location.transform.translation.x - qr_locations[frame_text][0]), 2) +
+            pow((robot_location.transform.translation.y - qr_locations[frame_text][1]), 2));
 
-            if(false){
-              far_enough = true;
-              //qr_locations[frame_text]=
+            if(distance<threshold){
+              far_enough = false;
+              ROS_INFO_STREAM("Repeated word [" << msg->data.c_str()
+              << "] ignored since distance " << distance << " to frame " << frame_text << " is too small");
             }
           }
 
@@ -72,12 +81,15 @@ class QrBroadcaster{
             std::string frame_text = "qr_location_";
             frame_text.append(patch::to_string(i));
 
-            ROS_INFO_STREAM("frame: " << frame_text);
             ROS_INFO("qr data received: [%s]", msg->data.c_str());
 
             store.push_back(msg->data.c_str());
 
-            //store location here
+            float myfloats[] = {robot_location.transform.translation.x, robot_location.transform.translation.y};
+            v.assign (myfloats, myfloats+2);
+            qr_locations[frame_text] = v;
+            ROS_INFO_STREAM("[Repeated word] New frame " << frame_text << " x coordinate: " << qr_locations[frame_text][0]);
+            ROS_INFO_STREAM("[Repeated word] New frame " << frame_text << " y coordinate: " << qr_locations[frame_text][1]);
 
             i+=1;
             n.setParam("qr_count", i);
@@ -86,13 +98,23 @@ class QrBroadcaster{
         } else {
           std::string frame_text = "qr_location_";
           frame_text.append(patch::to_string(i));
+          Vectors2d v;
 
-          ROS_INFO_STREAM("frame: " << frame_text);
           ROS_INFO("qr data received: [%s]", msg->data.c_str());
+
+          try {
+              robot_location = tfBuffer.lookupTransform("map", "base_link", ros::Time(0));
+          } catch (tf2::TransformException ex) {
+              ROS_ERROR("%s",ex.what());
+          }
 
           store.push_back(msg->data.c_str());
 
-          //store location here
+          float myfloats[] = {robot_location.transform.translation.x, robot_location.transform.translation.y};
+          v.assign (myfloats, myfloats+2);
+          qr_locations[frame_text] = v;
+          ROS_INFO_STREAM("New frame " << frame_text << " x coordinate: " << qr_locations[frame_text][0]);
+          ROS_INFO_STREAM("New frame " << frame_text << " y coordinate: " << qr_locations[frame_text][1]);
 
           i+=1;
           n.setParam("qr_count", i);
@@ -111,7 +133,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "qr_localizer");
 
-  QrBroadcaster pb;
+  QrLocalizer pb;
 
   ros::spin();
 
