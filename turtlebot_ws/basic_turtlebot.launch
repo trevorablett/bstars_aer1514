@@ -4,7 +4,7 @@
   <!-- input arguments -->
   <arg name="amcl" default="false"/>
   <arg name="waypoints" default="false"/>
-  <arg name="map_file" default="$(find bstars_navigation)/maps/utias_hallways.yaml"/>
+  <arg name="map_file" default="$(find bstars_navigation)/maps/utias_hallways_with_gmaps.yaml"/>
 
   <!--Core packages to run turtlebot-->
   <include file="$(find turtlebot_bringup)/launch/minimal.launch">
