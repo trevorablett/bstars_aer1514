@@ -1,0 +1,11 @@
+DWAPlannerROS:
+  max_trans_vel: 0.25
+  xy_goal_tolerance: 0.3
+
+move_base:
+  global_costmap:
+    inflation_layer:
+      cost_scaling_factor: 20
+  local_costmap:
+    inflation_layer:
+      cost_scaling_factor: 20
