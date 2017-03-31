@@ -1,0 +1,7 @@
+image: utias_hallways_new_with_gmaps.pgm
+resolution: 0.05
+origin: [-96.950000, -44.0500000, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
