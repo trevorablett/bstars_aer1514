@@ -23,4 +23,15 @@ NEW NOTES - MARCH 22
 - move robot backward for a second or two when it's on the base as a "initial move off base" command, instead of instantly going to first waypoint
 - load ALL of the default move_base and amcl parameters, instead of just ours (and load them BEFORE loading our custom ones, so our custom ones will overwrite). that way, if someone totally screwed up the existing files, we can still save ourselves.
 	- follow how we're loading our own for move_base
--add walls over exercise and end of hallway
+
+
+MAP:
+- move hallway on top all the way to the left
+- add curtain back to top hallway
+
+measurements
+utility room: left end to side of door for top hall: 4.7m
+side of door to wall :1.92m
+end of doors coming in to beginning of doors coming in: 1.05m
+edge of white section of top hallway to doors on left: 11.9m
+LEFT edge of white section to bottom hallway left side: 4m
