@@ -26,13 +26,15 @@ NEW NOTES - MARCH 22
 
 
 MAP:
-- move hallway on top all the way to the left
-- add curtain back to top hallway
+- DONE move hallway on top all the way to the left
+- DONE add curtain back to top hallway
+- remove little jut out on bottom of top hallway (the little angled section has a smooth transition to the lower half of the hallway)
 
 measurements
-utility room: left end to side of door for top hall: 4.7m
-side of door to wall :1.92m
+FIXED utility room: left end to side of door for top hall: 4.7m = 94 pixels
+side of door to wall :1.92m = 38 pixels
 	- this wall is not in the diagram at all. add it.
-end of doors coming in to beginning of doors coming in: 1.05m
-edge of white section of top hallway to doors on left: 11.9m
+end of doors coming in (wall) to beginning of doors coming in: 1.05m = 21 pixels
+edge of white section of top hallway to doors on left: 11.9m = 238 pixels
 LEFT edge of white section to bottom hallway left side: 4m
+door length: .9m = 18
