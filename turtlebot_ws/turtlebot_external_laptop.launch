@@ -3,13 +3,13 @@
 
   <!-- input arguments -->
   <arg name="amcl" default="false"/>
+  <arg name="sm" default="false"/>
   <arg name="amcl_map" default="$(find bstars_sim)/maps/utias_hallways.yaml"/>
 
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="true"/>
   </node>
 
-  <!--  RVIZ? navigation stack stuff? other laptop nodes? etc. -->
   <!-- amcl -->
   <group if="$(arg amcl)">
     <!-- start up amcl with map-->
@@ -21,6 +21,15 @@
 
     <!-- rviz viewer for amcl -->
     <node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find turtlebot_rviz_launchers)/rviz/navigation.rviz"/>
+  </group>
+
+  <!-- state machine -->
+  <group if="$(arg sm)">
+    <!-- waypoints action server -->
+    <node name="waypoints" pkg="bstars_navigation" type="waypoints_node.py" output="screen" required="true" />
+
+    <!-- main state machine -->
+    <node name="main_state_machine" pkg="bstars_state_machine" type="main_state_machine.py" output="screen" required="true" launch-prefix="xterm -e" />
   </group>
 
 </launch>

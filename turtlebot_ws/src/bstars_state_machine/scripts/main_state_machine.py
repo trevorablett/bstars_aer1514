@@ -21,7 +21,7 @@ class StateMachine():
         self._final_waypoint.target_pose.header.frame_id = "map"
         self._ac = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self._auto_dock_ac = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
-        self._wp_ac = actionlib.SimpleActionClient("waypoints_node", GoToWaypointsAction)
+        self._wp_ac = actionlib.SimpleActionClient("waypoints", GoToWaypointsAction)
 
         # initial pose
         self._initial_pose_set = False
@@ -33,7 +33,8 @@ class StateMachine():
         # tf listener for current pose
         self._listener = tf.TransformListener()
 
-        while not self._ac.wait_for_server(rospy.Duration(5.0)):
+        # somewhat of a check to ensure other stuff has been launched first
+        while not self._ac.wait_for_server(rospy.Duration(5)):
             rospy.loginfo("Waiting for the move_base action server to come up")
 
         self._state_start_time = rospy.get_time()
@@ -65,6 +66,10 @@ class StateMachine():
     def _dock_feedback_cb(self, feedback):
         # Print state of dock_drive module (or node.)
         print('Feedback: [DockDrive: ' + feedback.state + ']: ' + feedback.text)
+
+    def _wp_feedback_cb(self, feedback):
+        # print feedback
+        print('Feedback: [Waypoints: ' + str(feedback.consecutive_failed_pts) + ']: ' + str(feedback.current_waypoint))
 
     def _main_loop(self):
         while not rospy.is_shutdown():
@@ -99,39 +104,54 @@ class StateMachine():
                     self._cmd_vel_pub.publish(cmd_vel)
                 else:
                     print("Spinning complete. Storing current pose as final waypoint, then starting waypoints.")
-                    self._state = 3
                     cur_pose_as_goal = self.get_pose_as_goal()
                     self._final_waypoint.target_pose.pose.position = cur_pose_as_goal.target_pose.pose.position
                     print("test ", self._final_waypoint.target_pose.pose.orientation)
+
+                    # setup the waypoints action client
+                    while not self._wp_ac.wait_for_server(rospy.Duration(5)):
+                        print("Waiting for waypoints action server.")
+                    goal = GoToWaypointsGoal()
+                    goal.waypoints_file = "waypoints.txt"  # todo: non hardcode
+                    self._wp_ac.send_goal(goal, feedback_cb=self._wp_feedback_cb)
+                    print("Waypoints goal sent.")
+                    self._state = 3
                     self._state_start_time = rospy.get_time()
 
             elif self._state == 3:
                 # initialize the waypoints node, go to all of the waypoints. wait for that node to finish
-                print("todo")
-                self._state = 4
-                self._state_start_time = rospy.get_time()
-                #todo: probably going to have to make waypoints_node an acition server OR do publishing/subscribing to communicate
+                if self._wp_ac.get_state() == GoalStatus.SUCCEEDED:
+                    print("All waypoints complete! Moving to dock waypoint.")
+                    self._state = 4
+                    self._state_start_time = rospy.get_time()
 
             elif self._state == 4:
                 # possible state for checking preliminary sentence quality and doing a 2nd lap. may not use.
+
+                while not self._ac.wait_for_server(rospy.Duration(5)):
+                    print("Waiting for move_base action server.")
+
                 self._ac.send_goal(self._final_waypoint)
                 print("Final waypoint sent as goal.")
                 self._state = 5
 
             elif self._state == 5:
                 # go to the final waypoint, prepare to enter dock
-                if self._ac.get_state() == GoalStatus.SUCCEEDED:
+                mb_ac_state = self._ac.get_state()
+                if mb_ac_state == GoalStatus.SUCCEEDED:
                     print("Final waypoint reached. Attempting to enter dock.")
-                    self._state_start_time = rospy.get_time()
 
-                    while not self._auto_dock_ac.wait_for_server(rospy.Duration(5.0)):
+                    # setup the auto docking action client
+                    while not self._auto_dock_ac.wait_for_server(rospy.Duration(5)):
                         print("Waiting for dock action server.")
 
                     goal = AutoDockingGoal()
                     self._auto_dock_ac.send_goal(goal, feedback_cb=self._dock_feedback_cb)
                     print("Docking goal sent.")
                     self._state = 6
-                else:
+                    self._state_start_time = rospy.get_time()
+                elif mb_ac_state == GoalStatus.ABORTED or mb_ac_state == GoalStatus.ABORTED\
+                        or mb_ac_state == GoalStatus.REJECTED:
                     rospy.logerr("waypoint near dock not reached (check state 5 of state machine")
                     self._state = 8
 
@@ -142,12 +162,13 @@ class StateMachine():
                     self._state = 7
                     self._state_start_time = rospy.get_time()
                 elif rospy.get_time() - self._state_start_time > 30.0:
-                    print("Docking timed out. Starting stence analysis/speaking.")
+                    print("Docking timed out. Starting sentence analysis/speaking.")
                     self._state = 7
                     self._state_start_time = rospy.get_time()
 
             elif self._state == 7:
                 print("todo")
+                self._state = 8
                 # sentence analysis/speaking
 
             self.rate.sleep()
@@ -158,6 +179,5 @@ if __name__ == '__main__':
 
     try:
         sm = StateMachine()
-        #rospy.spin()
     except rospy.ROSInterruptException:
         pass

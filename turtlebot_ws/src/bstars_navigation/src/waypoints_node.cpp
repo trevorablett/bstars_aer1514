@@ -12,21 +12,24 @@
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 typedef actionlib::SimpleActionServer<bstars_navigation::GoToWaypointsAction> WaypointsServer;
 
-class WaypointsNode
+class WaypointsAction
 {
 public:
   MoveBaseClient *ac;
   ros::NodeHandle n_;
   WaypointsServer as_;
 
-  WaypointsNode()
+  WaypointsAction(std::string name) :
+    as_(n_, name, boost::bind(&WaypointsAction::executeCB, this, _1), false),
+    action_name_(name)
   {
     ac = new MoveBaseClient("move_base", true);
     initialized_ = false;
     current_goal_index_ = 0; // set as 0 by default, but loadGoalIndex overwrites
+    as_.start();
   }
 
-  ~WaypointsNode()
+  ~WaypointsAction()
   {
     delete ac;
   }
@@ -100,6 +103,15 @@ public:
         ros::param::set("~reset_index", false);
       }
 
+      // check if preempt has been requested
+      if (as_.isPreemptRequested())
+      {
+        ROS_INFO("%s: Preempted", action_name_.c_str());
+        // set the action state to preempted
+        as_.setPreempted();
+        return 0;
+      }
+
       // set the waypoint goal
       move_base_msgs::MoveBaseGoal goal = vecToMoveBaseGoal(goal_vec_[current_goal_index_]);
       goal.target_pose.header.frame_id = "map";
@@ -113,14 +125,25 @@ public:
 
       ac->waitForResult();
       if(ac->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+      {
         ROS_INFO("woop woop");
+        feedback_.consecutive_failed_pts = 0;
+      }
       else
+      {
         ROS_WARN("aw raspberries, didn't get to the point");
+        feedback_.consecutive_failed_pts++;
+      }
+      feedback_.current_waypoint = current_goal_index_;
+      as_.publishFeedback(feedback_);
 
       if(ros::ok()) saveCurrentGoalIndex(); //crazy bug without this if statement
 
       current_goal_index_++;
     }
+
+    if (!ros::ok()) return 0;
+    else return 1; // only gets here if all waypoints are completed
   }
 
   // convert the x y yaw vector to a MoveBaseGoal (poseStamped)
@@ -179,6 +202,34 @@ public:
     return 1;
   }
 
+  void executeCB(const bstars_navigation::GoToWaypointsGoalConstPtr &goal)
+  {
+    init();
+
+    std::string wp_file = goal->waypoints_file;
+    bool wp_load_success = loadWaypoints(wp_file);
+    bool wp_ind_load_success = loadGoalIndex();
+
+    if(wp_load_success && wp_ind_load_success)
+    {
+      int success = goToWaypoints();
+      if (success == 1)
+      {
+        ROS_INFO("%s: Succeeded", action_name_.c_str());
+        as_.setSucceeded();
+      }
+      else
+      {
+        ROS_WARN("%s: Failed", action_name_.c_str());
+        as_.setAborted();
+      }
+    }
+    else
+    {
+      ROS_ERROR("Waypoints files not correctly loaded.");
+    }
+  }
+
   // reset the goal index
   int resetGoalIndex()
   {
@@ -195,15 +246,19 @@ private:
 
   // action server stuff
   bstars_navigation::GoToWaypointsFeedback feedback_;
-
+  std::string action_name_;
 };
 
 
-int main(int argc, char** argv){
-  ros::init(argc, argv, "waypoints_node");
-  ros::NodeHandle nh;
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "waypoints");
+  WaypointsAction wp("waypoints");
+  ros::spin();
 
-  WaypointsNode wp;
+  ros::shutdown();
+  return 0;
+  /*
   wp.init();
 
   bool wp_load_success = wp.loadWaypoints("waypoints.txt");
@@ -213,6 +268,7 @@ int main(int argc, char** argv){
   {
     wp.goToWaypoints();
   }
+  */
 
   /* TEST CODE, THIS STUFF WORKS IF EVERYTHING ELSE BREAKS
   MoveBaseClient ac("move_base", true);
@@ -236,7 +292,4 @@ int main(int argc, char** argv){
   else
     ROS_INFO("The base failed to move forward 1 meter for some reason");
   */
-
-  ros::shutdown();
-  return 0;
 }
