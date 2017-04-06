@@ -9,6 +9,7 @@ import tf
 #import actionlib.action_client
 
 from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
+from bstars_navigation.msg import GoToWaypointsGoal, GoToWaypointsAction
 from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 from kobuki_msgs.msg import AutoDockingAction, AutoDockingGoal
 from actionlib_msgs.msg import GoalStatus
@@ -20,6 +21,7 @@ class StateMachine():
         self._final_waypoint.target_pose.header.frame_id = "map"
         self._ac = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self._auto_dock_ac = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
+        self._wp_ac = actionlib.SimpleActionClient("waypoints_node", GoToWaypointsAction)
 
         # initial pose
         self._initial_pose_set = False

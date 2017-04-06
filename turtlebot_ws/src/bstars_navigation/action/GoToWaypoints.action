@@ -1,0 +1,8 @@
+#goal
+string waypoints_file
+---
+#result -> none, all necesssary result info in state
+---
+#feedback
+int32 consecutive_failed_pts
+int32 current_waypoint

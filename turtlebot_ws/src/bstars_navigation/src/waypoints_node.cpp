@@ -1,6 +1,8 @@
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <actionlib/server/simple_action_server.h>
+#include <bstars_navigation/GoToWaypointsAction.h>
 #include <fstream>
 #include <ros/package.h>
 #include <geometry_msgs/Quaternion.h>
@@ -8,13 +10,14 @@
 #include <costmap_2d/costmap_2d.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
-
+typedef actionlib::SimpleActionServer<bstars_navigation::GoToWaypointsAction> WaypointsServer;
 
 class WaypointsNode
 {
 public:
   MoveBaseClient *ac;
   ros::NodeHandle n_;
+  WaypointsServer as_;
 
   WaypointsNode()
   {
@@ -189,6 +192,9 @@ private:
   move_base_msgs::MoveBaseGoal current_goal_;
   std::vector< std::vector<float> > goal_vec_;
   int current_goal_index_;
+
+  // action server stuff
+  bstars_navigation::GoToWaypointsFeedback feedback_;
 
 };
 

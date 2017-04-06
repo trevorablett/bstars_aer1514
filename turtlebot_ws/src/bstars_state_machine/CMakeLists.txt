@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslib
   rospy
+  bstars_navigation
 )
 
 ## System dependencies are found with CMake's conventions
