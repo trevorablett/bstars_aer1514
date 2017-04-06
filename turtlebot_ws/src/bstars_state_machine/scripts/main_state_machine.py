@@ -10,7 +10,7 @@ import tf
 
 from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
 from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
-from tf.transformations import euler_from_quaternion
+from kobuki_msgs.msg import AutoDockingAction, AutoDockingGoal
 from actionlib_msgs.msg import GoalStatus
 
 class StateMachine():
@@ -19,6 +19,7 @@ class StateMachine():
         self._final_waypoint = MoveBaseGoal()
         self._final_waypoint.target_pose.header.frame_id = "map"
         self._ac = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+        self._auto_dock_ac = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
 
         # initial pose
         self._initial_pose_set = False
@@ -28,12 +29,10 @@ class StateMachine():
         self._cmd_vel_pub = rospy.Publisher('/cmd_vel_mux/input/switch', Twist, queue_size=10)
 
         # tf listener for current pose
-        self.listener = tf.TransformListener()
+        self._listener = tf.TransformListener()
 
         while not self._ac.wait_for_server(rospy.Duration(5.0)):
             rospy.loginfo("Waiting for the move_base action server to come up")
-
-        #self._main_loop_timer = rospy.Timer(rospy.Duration(0.1), self._main_loop)
 
         self._state_start_time = rospy.get_time()
         if self._state == 0:
@@ -47,7 +46,7 @@ class StateMachine():
     def get_pose_as_goal(self):
         # returns trans in [0], rot in [1] as quaternion
         try:
-            (trans, rot) = self.listener.lookupTransform('/map', '/base_link', rospy.Time(0))
+            (trans, rot) = self._listener.lookupTransform('/map', '/base_link', rospy.Time(0))
             out = MoveBaseGoal()
             out.target_pose.pose.position.x = trans[0]
             out.target_pose.pose.position.y = trans[1]
@@ -60,6 +59,10 @@ class StateMachine():
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.logerr("tf not available yet")
             return 0
+
+    def _dock_feedback_cb(self, feedback):
+        # Print state of dock_drive module (or node.)
+        print('Feedback: [DockDrive: ' + feedback.state + ']: ' + feedback.text)
 
     def _main_loop(self):
         while not rospy.is_shutdown():
@@ -110,16 +113,37 @@ class StateMachine():
             elif self._state == 4:
                 # possible state for checking preliminary sentence quality and doing a 2nd lap. may not use.
                 self._ac.send_goal(self._final_waypoint)
+                print("Final waypoint sent as goal.")
                 self._state = 5
+
             elif self._state == 5:
                 # go to the final waypoint, prepare to enter dock
-
                 if self._ac.get_state() == GoalStatus.SUCCEEDED:
                     print("Final waypoint reached. Attempting to enter dock.")
                     self._state_start_time = rospy.get_time()
+
+                    while not self._auto_dock_ac.wait_for_server(rospy.Duration(5.0)):
+                        print("Waiting for dock action server.")
+
+                    goal = AutoDockingGoal()
+                    self._auto_dock_ac.send_goal(goal, feedback_cb=self._dock_feedback_cb)
+                    print("Docking goal sent.")
+                    self._state = 6
+                else:
+                    rospy.logerr("waypoint near dock not reached (check state 5 of state machine")
+                    self._state = 8
+
             elif self._state == 6:
-                print("todo")
                 # attempt to enter dock. if timeout OR sucessfully docked, go to next state
+                if self._auto_dock_ac.get_state() == GoalStatus.SUCCEEDED:
+                    print("Docked! Starting sentence analysis/speaking.")
+                    self._state = 7
+                    self._state_start_time = rospy.get_time()
+                elif rospy.get_time() - self._state_start_time > 30.0:
+                    print("Docking timed out. Starting stence analysis/speaking.")
+                    self._state = 7
+                    self._state_start_time = rospy.get_time()
+
             elif self._state == 7:
                 print("todo")
                 # sentence analysis/speaking
@@ -135,13 +159,3 @@ if __name__ == '__main__':
         #rospy.spin()
     except rospy.ROSInterruptException:
         pass
-
-    '''
-    client = actionlib.SimpleActionClient('do_dishes', DoDishesAction)
-    client.wait_for_server()
-
-    goal = DoDishesGoal()
-    # Fill in the goal here
-    client.send_goal(goal)
-    client.wait_for_result(rospy.Duration.from_sec(5.0))
-    '''

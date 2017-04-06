@@ -12,6 +12,8 @@
   </include>
 
   <!--Camera driver for arbbec camera-->
+  <!-- decided to remove since we don't use it -->
+  <!--
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video1" />
     <param name="image_width" value="1280" />
@@ -20,6 +22,7 @@
     <param name="camera_frame_id" value="usb_cam" />
     <param name="io_method" value="mmap"/>
   </node>
+  -->
 
   <!--Camera driver for netbook webcam-->
   <node name="web_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
@@ -32,7 +35,8 @@
   </node>
 
   <!--Qr code readers for both cameras -->
-  <include file="$(find qr_listener)/launch/dual_camera.launch"/>
+  <!-- <include file="$(find qr_listener)/launch/dual_camera.launch"/> -->
+  <include file="$(find qr_listener)/launch/web_cam_only.launch"/>
 
   <!--ps3 controller-->
   <!-- consider adding the sixad -s to this file as well (through a shell script) -->
@@ -51,6 +55,9 @@
   <node pkg="joy" type="joy_node" name="joystick">
     <param name="dev" value="/dev/input/js1"/>
   </node>
+
+  <!-- auto docking server -->
+  <include file="$(find bstars_state_machine)/launch/bstars_auto_docking.launch"/>
 
   <!-- amcl -->
   <group if="$(arg amcl)">
