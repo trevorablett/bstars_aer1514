@@ -26,7 +26,7 @@
   <!-- state machine -->
   <group if="$(arg sm)">
     <!-- waypoints action server -->
-    <node name="waypoints" pkg="bstars_navigation" type="waypoints_node.py" output="screen" required="true" />
+    <node name="waypoints" pkg="bstars_navigation" type="waypoints_node" output="screen" required="true" />
 
     <!-- main state machine -->
     <node name="main_state_machine" pkg="bstars_state_machine" type="main_state_machine.py" output="screen" required="true" launch-prefix="xterm -e" />

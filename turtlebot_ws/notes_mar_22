@@ -1,3 +1,7 @@
+APRIL 6 - NOTES
+
+
+
 - REQUIRES MORE TESTING need to be careful about times when a valid plan ends up being unreachable, robot will get as close as possible but it is difficult to know what will cause it to stop
 
 
@@ -19,7 +23,7 @@ NEW NOTES - MARCH 22
 	- add to parameters
 	- /move_base/DWAPlannerROS/max_trans_vel
 	- /move_base/DWAPlannerROS/max_vel_x
-- try to glue new gmapped rooms to the actual map, then test them out
+- DONE try to glue new gmapped rooms to the actual map, then test them out
 - move robot backward for a second or two when it's on the base as a "initial move off base" command, instead of instantly going to first waypoint
 - load ALL of the default move_base and amcl parameters, instead of just ours (and load them BEFORE loading our custom ones, so our custom ones will overwrite). that way, if someone totally screwed up the existing files, we can still save ourselves.
 	- follow how we're loading our own for move_base
@@ -28,7 +32,7 @@ NEW NOTES - MARCH 22
 MAP:
 - DONE move hallway on top all the way to the left
 - DONE add curtain back to top hallway
-- remove little jut out on bottom of top hallway (the little angled section has a smooth transition to the lower half of the hallway)
+- DONE remove little jut out on bottom of top hallway (the little angled section has a smooth transition to the lower half of the hallway)
 
 measurements
 FIXED utility room: left end to side of door for top hall: 4.7m = 94 pixels
