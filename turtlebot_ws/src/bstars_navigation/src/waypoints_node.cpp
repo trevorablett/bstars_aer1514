@@ -130,7 +130,15 @@ public:
       while (ac->getState() != actionlib::SimpleClientGoalState::ACTIVE);
       ROS_INFO("move_base client goal state active.");
 
-      ac->waitForResult();
+      // loop until state is no longer active
+      while (ac->getState() == actionlib::SimpleClientGoalState::ACTIVE);
+
+      // this is a super hack that might not work, but if it does we'll keep it
+      ac->sendGoal(goal);
+      while (ac->getState() != actionlib::SimpleClientGoalState::ACTIVE);
+      while (ac->getState() == actionlib::SimpleClientGoalState::ACTIVE);
+
+      //ac->waitForResult();
       if(ac->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
       {
         ROS_INFO("woop woop");
