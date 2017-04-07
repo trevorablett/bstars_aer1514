@@ -11,7 +11,8 @@
 #include <cmath>
 
 typedef std::vector<float> Vectors2d;
-
+//TODO: Store QR as param
+//TODO: fix duplicate checker
 namespace patch
 {
     template < typename T > std::string to_string( const T& n )
@@ -33,7 +34,7 @@ class QrLocalizer{
     QrLocalizer(){
 
       n.setParam("qr_count", 0);
-      n.setParam("distance_threshold", 1);
+      n.setParam("distance_threshold", 1.5);
       sub = n.subscribe("/web_cam_qr/qrcode", 1,
       &QrLocalizer::qrCallback, this);
       tf_listener = new tf2_ros::TransformListener(tfBuffer);
