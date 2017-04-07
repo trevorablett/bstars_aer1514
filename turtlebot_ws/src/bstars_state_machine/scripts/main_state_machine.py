@@ -16,12 +16,14 @@ from actionlib_msgs.msg import GoalStatus
 
 class StateMachine():
     def __init__(self):
-        self._state = 0
+        self._state = 2
         self._final_waypoint = MoveBaseGoal()
         self._final_waypoint.target_pose.header.frame_id = "map"
         self._ac = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         self._auto_dock_ac = actionlib.SimpleActionClient("dock_drive_action", AutoDockingAction)
         self._wp_ac = actionlib.SimpleActionClient("waypoints", GoToWaypointsAction)
+
+        self._auto_dock_fb = ""
 
         # initial pose
         self._initial_pose_set = False
@@ -66,6 +68,7 @@ class StateMachine():
     def _dock_feedback_cb(self, feedback):
         # Print state of dock_drive module (or node.)
         print('Feedback: [DockDrive: ' + feedback.state + ']: ' + feedback.text)
+        self._audo_dock_fb = feedback.state
 
     def _wp_feedback_cb(self, feedback):
         # print feedback
@@ -157,12 +160,14 @@ class StateMachine():
 
             elif self._state == 6:
                 # attempt to enter dock. if timeout OR sucessfully docked, go to next state
-                if self._auto_dock_ac.get_state() == GoalStatus.SUCCEEDED:
+                if self._auto_dock_ac.get_state() == GoalStatus.SUCCEEDED or self._auto_dock_fb == "DOCKED_IN":
                     print("Docked! Starting sentence analysis/speaking.")
+                    # todo: add in command to stop the docking action client here
                     self._state = 7
                     self._state_start_time = rospy.get_time()
-                elif rospy.get_time() - self._state_start_time > 30.0:
+                elif rospy.get_time() - self._state_start_time > 15.0:
                     print("Docking timed out. Starting sentence analysis/speaking.")
+                    # todo: add in command to actually stop docking in this case via action client
                     self._state = 7
                     self._state_start_time = rospy.get_time()
 

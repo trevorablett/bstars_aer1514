@@ -123,6 +123,8 @@ public:
       ac->sendGoal(goal);
       ROS_INFO("Goal index of %d successfully sent", current_goal_index_); //without this message, it doesn't always run
 
+      // TODO: add in a delay or similar here to ensure that this doesn't mess up anymore
+
       ac->waitForResult();
       if(ac->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
       {

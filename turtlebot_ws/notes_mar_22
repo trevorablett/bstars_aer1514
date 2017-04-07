@@ -1,5 +1,5 @@
 APRIL 6 - NOTES
-
+- change the inflation radius from 0.5 to 0.3
 
 
 - REQUIRES MORE TESTING need to be careful about times when a valid plan ends up being unreachable, robot will get as close as possible but it is difficult to know what will cause it to stop
