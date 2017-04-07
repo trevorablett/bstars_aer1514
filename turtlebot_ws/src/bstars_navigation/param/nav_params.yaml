@@ -5,6 +5,8 @@ DWAPlannerROS:
 global_costmap:
   inflation_layer:
     cost_scaling_factor: 15
+    inflation_radius: 0.4
 local_costmap:
   inflation_layer:
     cost_scaling_factor: 15
+    inflation_radius: 0.4
