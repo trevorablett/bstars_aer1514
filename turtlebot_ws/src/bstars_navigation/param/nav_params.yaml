@@ -1,6 +1,6 @@
 DWAPlannerROS:
   max_trans_vel: 0.25
-  xy_goal_tolerance: 0.3
+  xy_goal_tolerance: 0.15
 
 global_costmap:
   inflation_layer:

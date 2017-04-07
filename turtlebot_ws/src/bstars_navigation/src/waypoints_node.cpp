@@ -123,7 +123,12 @@ public:
       ac->sendGoal(goal);
       ROS_INFO("Goal index of %d successfully sent", current_goal_index_); //without this message, it doesn't always run
 
-      // TODO: add in a delay or similar here to ensure that this doesn't mess up anymore
+      // ensure goal is active before starting
+      if (ac->getState() != actionlib::SimpleClientGoalState::ACTIVE)
+        ROS_INFO("Waiting for move_base action client goal to be active...");
+
+      while (ac->getState() != actionlib::SimpleClientGoalState::ACTIVE);
+      ROS_INFO("move_base client goal state active.");
 
       ac->waitForResult();
       if(ac->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
