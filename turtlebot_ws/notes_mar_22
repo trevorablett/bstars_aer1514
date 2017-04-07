@@ -2,6 +2,12 @@ APRIL 6 - NOTES
 - change the inflation radius from 0.5 to 0.3
 
 
+NEW MEASUREMENTS
+supply closet doors to end of machine shop doorway: 2.95m
+machine shop doorway: 1.8m
+machine shop one door open: 0.9m
+doorway to end of room: 6.9m
+
 - REQUIRES MORE TESTING need to be careful about times when a valid plan ends up being unreachable, robot will get as close as possible but it is difficult to know what will cause it to stop
 
 
