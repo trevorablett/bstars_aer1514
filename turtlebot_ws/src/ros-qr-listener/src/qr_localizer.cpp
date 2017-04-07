@@ -58,25 +58,30 @@ class QrLocalizer{
           bool far_enough = true;
           Vectors2d v;
 
-          for (int j = 0; j<= store.size()-1; j+=1){
-            std::string frame_text = "qr_location_";
-            frame_text.append(patch::to_string(j));
+          //for (int j = 0; j<= store.size()-1; j+=1){
+          auto it = std::find(Names.begin(), Names.end(), old_name_);
+          auto index = std::distance(Names.begin(), it);
+          j = index
+            //std::string frame_text = "qr_location_";
+            //frame_text.append(patch::to_string(j));
 
             try {
                 robot_location = tfBuffer.lookupTransform("map", "base_link", ros::Time(0));
             } catch (tf2::TransformException ex) {
                 ROS_ERROR("%s",ex.what());
             }
+            if(qr_locations[frame_text]){
+              distance = sqrt(pow((robot_location.transform.translation.x - qr_locations[frame_text][0]), 2) +
+              pow((robot_location.transform.translation.y - qr_locations[frame_text][1]), 2));
 
-            distance = sqrt(pow((robot_location.transform.translation.x - qr_locations[frame_text][0]), 2) +
-            pow((robot_location.transform.translation.y - qr_locations[frame_text][1]), 2));
-
-            if(distance<threshold){
-              far_enough = false;
-              ROS_INFO_STREAM("Repeated word [" << msg->data.c_str()
-              << "] ignored since distance " << distance << " to frame " << frame_text << " is too small");
+              if(distance<threshold){
+                far_enough = false;
+                ROS_INFO_STREAM("Repeated word [" << msg->data.c_str()
+                << "] ignored since distance " << distance << " to frame " << frame_text << " is too small");
+              }
             }
-          }
+
+          //}
 
           if(far_enough){
             std::string frame_text = "qr_location_";
