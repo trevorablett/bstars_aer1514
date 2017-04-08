@@ -153,8 +153,7 @@ class StateMachine():
                     print("Docking goal sent.")
                     self._state = 6
                     self._state_start_time = rospy.get_time()
-                elif mb_ac_state == GoalStatus.ABORTED or mb_ac_state == GoalStatus.ABORTED\
-                        or mb_ac_state == GoalStatus.REJECTED:
+                elif mb_ac_state == GoalStatus.ABORTED or mb_ac_state == GoalStatus.REJECTED:
                     rospy.logerr("waypoint near dock not reached (check state 5 of state machine")
                     self._state = 8
 
@@ -165,16 +164,18 @@ class StateMachine():
                     # todo: add in command to stop the docking action client here
                     self._state = 7
                     self._state_start_time = rospy.get_time()
-                elif rospy.get_time() - self._state_start_time > 15.0:
+                elif rospy.get_time() - self._state_start_time > 25.0:
                     print("Docking timed out. Starting sentence analysis/speaking.")
                     # todo: add in command to actually stop docking in this case via action client
                     self._state = 7
                     self._state_start_time = rospy.get_time()
 
             elif self._state == 7:
-                print("todo")
-                self._state = 8
                 # sentence analysis/speaking
+                words = rospy.get_param("/stored_keywords", [])
+                if rospy.get_time() - self._state_start_time > 5.0:
+                    print("Sentence: ", words)
+                    self._state_start_time = rospy.get_time()
 
             self.rate.sleep()
 
