@@ -11,8 +11,7 @@
 #include <cmath>
 
 typedef std::vector<float> Vectors2d;
-//TODO: Store QR as param
-//TODO: fix duplicate checker
+
 namespace patch
 {
     template < typename T > std::string to_string( const T& n )
@@ -59,18 +58,13 @@ class QrLocalizer{
           bool far_enough = true;
           Vectors2d v;
           std::vector<std::string>::iterator iter = store.begin();
-          //int counter = 0;
 
           while((iter = std::find(iter, store.end(), msg->data.c_str())) != store.end()) {
             std::vector<std::string>::iterator it = std::find(store.begin(), store.end(), msg->data.c_str());
             ptrdiff_t index = find(iter, store.end(), msg->data.c_str()) - store.begin();
 
-            //ROS_INFO_STREAM("counter: " << counter);
-            ROS_INFO_STREAM("index: " << index);
             std::string frame_text = "qr_location_";
-            //frame_text.append(patch::to_string(counter+index));
             frame_text.append(patch::to_string(index));
-            ROS_INFO_STREAM("frame_text: " << frame_text);
 
             try {
                 robot_location = tfBuffer.lookupTransform("map", "base_link", ros::Time(0));
@@ -87,7 +81,6 @@ class QrLocalizer{
               << "] ignored since distance " << distance << " to previous frame " << frame_text << " is too small");
             }
 
-            //counter = counter + (index+1);
             iter++;
           }
 
@@ -95,15 +88,15 @@ class QrLocalizer{
             std::string frame_text = "qr_location_";
             frame_text.append(patch::to_string(i));
 
-            ROS_INFO("qr data received: [%s]", msg->data.c_str());
+            ROS_INFO("qr data stored: [%s]", msg->data.c_str());
 
             store.push_back(msg->data.c_str());
 
             float myfloats[] = {robot_location.transform.translation.x, robot_location.transform.translation.y};
             v.assign (myfloats, myfloats+2);
             qr_locations[frame_text] = v;
-            ROS_INFO_STREAM("[Repeated word] New frame " << frame_text << " x coordinate: " << qr_locations[frame_text][0]);
-            ROS_INFO_STREAM("[Repeated word] New frame " << frame_text << " y coordinate: " << qr_locations[frame_text][1]);
+            ROS_INFO_STREAM("New (repeat word) frame " << frame_text << " x coordinate: " << qr_locations[frame_text][0]);
+            ROS_INFO_STREAM("New (repeat word) frame " << frame_text << " y coordinate: " << qr_locations[frame_text][1]);
 
             i+=1;
             n.setParam("qr_count", i);
@@ -116,7 +109,7 @@ class QrLocalizer{
           frame_text.append(patch::to_string(i));
           Vectors2d v;
 
-          ROS_INFO("qr data received: [%s]", msg->data.c_str());
+          ROS_INFO("qr data stored: [%s]", msg->data.c_str());
 
           try {
               robot_location = tfBuffer.lookupTransform("map", "base_link", ros::Time(0));

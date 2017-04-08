@@ -14,6 +14,8 @@ class decoder:
 
 		self.bridge = CvBridge()
 		self.image_sub = rospy.Subscriber(rospy.get_param("qrdecoder/img_topic"),Image,self.callback)
+		#self.image_sub = rospy.Subscriber(rospy.get_param("qrdecoder/img_topic"), queue_size = 10, Image,self.callback)
+		#try this or increasing publisher queue size on the usb cam side
 
 	def callback(self,data):
 		# convert sensor_msgs::Image to opencv
