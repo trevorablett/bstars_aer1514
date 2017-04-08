@@ -35,6 +35,7 @@ class QrLocalizer{
 
       n.setParam("qr_count", 0);
       n.setParam("distance_threshold", 1.5);
+      n.setParam("stored_keywords", store);
       sub = n.subscribe("/web_cam_qr/qrcode", 1,
       &QrLocalizer::qrCallback, this);
       tf_listener = new tf2_ros::TransformListener(tfBuffer);
@@ -57,31 +58,38 @@ class QrLocalizer{
           float distance;
           bool far_enough = true;
           Vectors2d v;
+          std::vector<std::string>::iterator iter = store.begin();
+          //int counter = 0;
 
-          //for (int j = 0; j<= store.size()-1; j+=1){
-          auto it = std::find(Names.begin(), Names.end(), old_name_);
-          auto index = std::distance(Names.begin(), it);
-          j = index
-            //std::string frame_text = "qr_location_";
-            //frame_text.append(patch::to_string(j));
+          while((iter = std::find(iter, store.end(), msg->data.c_str())) != store.end()) {
+            std::vector<std::string>::iterator it = std::find(store.begin(), store.end(), msg->data.c_str());
+            ptrdiff_t index = find(iter, store.end(), msg->data.c_str()) - store.begin();
+
+            //ROS_INFO_STREAM("counter: " << counter);
+            ROS_INFO_STREAM("index: " << index);
+            std::string frame_text = "qr_location_";
+            //frame_text.append(patch::to_string(counter+index));
+            frame_text.append(patch::to_string(index));
+            ROS_INFO_STREAM("frame_text: " << frame_text);
 
             try {
                 robot_location = tfBuffer.lookupTransform("map", "base_link", ros::Time(0));
             } catch (tf2::TransformException ex) {
                 ROS_ERROR("%s",ex.what());
             }
-            if(qr_locations[frame_text]){
-              distance = sqrt(pow((robot_location.transform.translation.x - qr_locations[frame_text][0]), 2) +
-              pow((robot_location.transform.translation.y - qr_locations[frame_text][1]), 2));
 
-              if(distance<threshold){
-                far_enough = false;
-                ROS_INFO_STREAM("Repeated word [" << msg->data.c_str()
-                << "] ignored since distance " << distance << " to frame " << frame_text << " is too small");
-              }
+            distance = sqrt(pow((robot_location.transform.translation.x - qr_locations[frame_text][0]), 2) +
+            pow((robot_location.transform.translation.y - qr_locations[frame_text][1]), 2));
+
+            if(distance<threshold){
+              far_enough = false;
+              ROS_INFO_STREAM("Repeated word [" << msg->data.c_str()
+              << "] ignored since distance " << distance << " to previous frame " << frame_text << " is too small");
             }
 
-          //}
+            //counter = counter + (index+1);
+            iter++;
+          }
 
           if(far_enough){
             std::string frame_text = "qr_location_";
@@ -99,9 +107,11 @@ class QrLocalizer{
 
             i+=1;
             n.setParam("qr_count", i);
+            n.setParam("stored_keywords", store);
           }
 
-        } else {
+        }
+        else {
           std::string frame_text = "qr_location_";
           frame_text.append(patch::to_string(i));
           Vectors2d v;
@@ -124,6 +134,7 @@ class QrLocalizer{
 
           i+=1;
           n.setParam("qr_count", i);
+          n.setParam("stored_keywords", store);
         }
 
     }
