@@ -16,7 +16,7 @@ from actionlib_msgs.msg import GoalStatus
 
 class StateMachine():
     def __init__(self):
-        self._state = 0
+        self._state = 2
         self._final_waypoint = MoveBaseGoal()
         self._final_waypoint.target_pose.header.frame_id = "map"
         self._ac = actionlib.SimpleActionClient("move_base", MoveBaseAction)
