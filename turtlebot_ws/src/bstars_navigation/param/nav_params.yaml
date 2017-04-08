@@ -1,5 +1,5 @@
 DWAPlannerROS:
-  max_trans_vel: 0.27
+  max_trans_vel: 0.25
   xy_goal_tolerance: 0.15
   max_vel_x: 0.27
 

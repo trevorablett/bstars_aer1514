@@ -10,6 +10,9 @@
     <param name="use_gui" value="true"/>
   </node>
 
+  <node name="qr_localizer" pkg="qr_listener" type="qr_localizer" required="true"/>
+
+
   <!-- amcl -->
   <group if="$(arg amcl)">
     <!-- start up amcl with map-->
