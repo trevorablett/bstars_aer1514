@@ -33,7 +33,7 @@ class QrLocalizer{
     QrLocalizer(){
 
       n.setParam("qr_count", 0);
-      n.setParam("distance_threshold", 1.5);
+      n.setParam("distance_threshold", 2.0);
       n.setParam("stored_keywords", store);
       sub = n.subscribe("/web_cam_qr/qrcode", 1,
       &QrLocalizer::qrCallback, this);
